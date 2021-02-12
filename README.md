@@ -1,2 +1,8 @@
 # shortly-express
-This is a project I completed as a student at [hackreactor](http://hackreactor.com). This project was worked on with a pair.
+This is a project that demonstrates:
+
+- Adding authentication to an existing URL-shortening service
+
+ - Implement cookie-parsing
+ - Protect routes with session checking middleware
+ - Create routes for users to signup and login
