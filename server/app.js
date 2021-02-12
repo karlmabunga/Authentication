@@ -79,9 +79,49 @@ app.post('/links',
 /************************************************************/
 // Write your authentication routes here
 /************************************************************/
+app.get('/login', (req, res) => {
+  res.render('login');
+})
 
+app.get('/signup', (req, res) => {
+  res.render('signup')
+})
 
+app.get('/logout', (req, res) => {
+  return models.Sessions.delete({hash: req.cookies.shortlyid})
+  .then(() => {
+    res.clearCookie('shortlyid');
+    res.redirect('/login');
+  })
+  .catch(error => res.status(500).send());
+})
 
+app.post('login', (req, res) => {})
+
+app.post('signup', (req, res) => {
+  const {username, password} = req.body
+  return models.User.get({username})
+  .then(user => {
+    if(user) {
+      throw Error('Username taken!')
+    } else {
+      models.Users.create({username, password})
+    }
+  })
+  .then(results => {
+    return models.Sessions.update(
+      {hash: req.session.hash},
+      {userId: results.inserId}
+    )
+  })
+  .then(() => res.redirect('/'))
+  .error(err => {
+    res.status(500).send()
+  })
+  .catch(err => {
+    res.redirect('/signup');
+  })
+})
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
 // assume the route is a short code and try and handle it here.
