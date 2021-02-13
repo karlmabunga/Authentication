@@ -16,8 +16,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static(path.join(__dirname, '../public')));
 
 
-app.use(require('./middleware/cookieParser'))
-app.use(Auth.createSession)
+app.use(require('./middleware/cookieParser'));
+app.use(Auth.createSession);
+// app.use((req,res,next) => {
+//   console.log(req);
+//   next();
+// });
 
 app.get('/', Auth.verifySession,
   (req, res) => {
@@ -81,11 +85,11 @@ app.post('/links', Auth.verifySession,
 /************************************************************/
 app.get('/login', (req, res) => {
   res.render('login');
-})
+});
 
 app.get('/signup', (req, res) => {
-  res.render('signup')
-})
+  res.render('signup');
+});
 
 app.get('/logout', (req, res) => {
   return models.Sessions.delete({ hash: req.cookies.shortlyid })
@@ -94,24 +98,24 @@ app.get('/logout', (req, res) => {
       res.redirect('/login');
     })
     .catch(error => res.status(500).send());
-})
+});
 
 app.post('/login', (req, res) => {
   // extract username and password
-  const { username, password } = req.body
+  const { username, password } = req.body;
   // check if the user already exists
   return models.Users.get({ username })
     .then(user => {
       // if no user or the passswords compared with the salt don't match
       if (!user || !models.Users.compare(password, user.password, user.salt)) {
         // if they don't match -> 120
-        throw Error('Username and password don\'t match')
+        throw Error('Username and password don\'t match');
       } else {
         // update their session from the req.session and the user.id
         return models.Sessions.update(
           { hash: req.session.hash },
           { userId: user.id }
-        )
+        );
       }
     })
     // redirect to homepage if successful
@@ -119,22 +123,22 @@ app.post('/login', (req, res) => {
     .error(err => res.status(500).send())
     // redirect to login
     .catch(err => {
-      res.redirect('/login')
-    })
-})
+      res.redirect('/login');
+    });
+});
 
 app.post('/signup', (req, res) => {
   // get username and password
-  const { username, password } = req.body
+  const { username, password } = req.body;
   // check to see if the username has been taken
   return models.User.get({ username })
     .then(user => {
       // if it has been throw an error -> 132
       if (user) {
-        throw Error('Username taken!')
+        throw Error('Username taken!');
       } else {
         // otherwise create a new user
-        models.Users.create({ username, password })
+        models.Users.create({ username, password });
       }
     })
     .then(results => {
@@ -142,17 +146,17 @@ app.post('/signup', (req, res) => {
       return models.Sessions.update(
         { hash: req.session.hash },
         { userId: results.insertId }
-      )
+      );
     })
     .then(() => res.redirect('/'))
     .error(err => {
-      res.status(500).send()
+      res.status(500).send();
     })
     // redirect them to sign up again
     .catch(err => {
       res.redirect('/signup');
-    })
-})
+    });
+});
 /************************************************************/
 // Handle the code parameter route last - if all other routes fail
 // assume the route is a short code and try and handle it here.

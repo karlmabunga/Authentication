@@ -2,6 +2,8 @@ node_modules
 db/*.sqlite
 *.DS_Store
 docs
+server/db/index.js
+test/ServerSpec.js
 
 # Floobits
 .floo
