@@ -18,10 +18,7 @@ app.use(express.static(path.join(__dirname, '../public')));
 
 app.use(require('./middleware/cookieParser'));
 app.use(Auth.createSession);
-// app.use((req,res,next) => {
-//   console.log(req);
-//   next();
-// });
+
 
 app.get('/', Auth.verifySession,
   (req, res) => {
